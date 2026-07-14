@@ -1,0 +1,69 @@
+{
+  "_comment": "Universal data sources. Referenced by states.json via the 'sources' array.",
+
+  "snap": {
+    "label": "SNAP / EBT Retailers",
+    "type": "arcgis_featureserver",
+    "url": "https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/snap_retailer_location_data/FeatureServer/0/query",
+    "stateField": "State",
+    "fields": "Store_Name,Store_Street_Address,City,State,Zip_Code,County,Store_Type",
+    "pageSize": 1000,
+    "attribution": "USDA Food and Nutrition Service"
+  },
+
+  "clinics": {
+    "label": "Federally Qualified Health Centers",
+    "type": "csv",
+    "url": "https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv",
+    "stateField": "Site State Abbreviation",
+    "latField": "Geocoding Artifact Address Primary Y Coordinate",
+    "lngField": "Geocoding Artifact Address Primary X Coordinate",
+    "nameField": "Site Name",
+    "addressField": "Site Address",
+    "cityField": "Site City",
+    "zipField": "Site Postal Code",
+    "phoneField": "Site Telephone Number",
+    "websiteField": "Site Web Address",
+    "attribution": "HRSA Health Center Program"
+  },
+
+  "osm": {
+    "label": "OpenStreetMap (shelters + food banks)",
+    "type": "geofabrik",
+    "baseUrl": "https://download.geofabrik.de",
+    "overpassEndpoints": [
+      "https://overpass.private.coffee/api/interpreter",
+      "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+      "https://overpass-api.de/api/interpreter"
+    ],
+    "categories": {
+      "shelters": {
+        "osmiumExpressions": [
+          "social_facility=shelter",
+          "social_facility=homeless_shelter",
+          "homeless=shelter"
+        ],
+        "overpassTags": [
+          ["social_facility", "shelter"],
+          ["social_facility", "homeless_shelter"],
+          ["homeless", "shelter"]
+        ]
+      },
+      "foodBanks": {
+        "osmiumExpressions": [
+          "social_facility=food_bank",
+          "social_facility=food_pantry",
+          "social_facility=soup_kitchen",
+          "amenity=food_bank"
+        ],
+        "overpassTags": [
+          ["social_facility", "food_bank"],
+          ["social_facility", "food_pantry"],
+          ["social_facility", "soup_kitchen"],
+          ["amenity", "food_bank"]
+        ]
+      }
+    },
+    "attribution": "OpenStreetMap contributors"
+  }
+}

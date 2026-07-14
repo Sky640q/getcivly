@@ -2,23 +2,16 @@
 /**
  * fetch-data.mjs
  *
- * Fetches resource data for Georgia and writes GeoJSON-style feature arrays
- * to the data/ directory.
+ * Fetches resource data for all enabled states and writes per-state
+ * GeoJSON-style feature arrays to data/{STATE}/ directories.
+ *
+ * Configuration:
+ *   config/states.json  — which states are enabled, bboxes, Geofabrik slugs
+ *   config/sources.json — universal API endpoints and field mappings
  *
  * OSM data strategy (shelters + food banks):
- *   PRIMARY   — Geofabrik daily extract + osmium-tool (used in GitHub Actions / Linux)
- *               Downloads georgia-latest.osm.pbf once, filters with osmium, no API calls.
- *   FALLBACK  — Overpass API (used locally when osmium is not installed)
- *
- * Other sources:
- *   Free Clinics — HRSA Health Center Finder CSV (no auth, filtered to GA)
- *   SNAP / EBT   — USDA FNS bulk retailer CSV (filtered to GA)
- *
- * Requires: Node 18+, no npm dependencies.
- * osmium-tool must be installed for the primary path:
- *   Ubuntu/Debian: sudo apt-get install osmium-tool
- *   macOS:         brew install osmium-tool
- *   Windows:       use WSL, or skip to Overpass fallback
+ *   PRIMARY  — Geofabrik daily extract + osmium-tool (GitHub Actions / Linux)
+ *   FALLBACK — Overpass API (local dev without osmium)
  *
  * Run: node scripts/fetch-data.mjs
  */
@@ -33,15 +26,22 @@ import { exec }         from 'child_process';
 import { promisify }    from 'util';
 import { tmpdir }       from 'os';
 
-const execAsync     = promisify(exec);
-const __dirname     = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR      = join(__dirname, '..', 'data');
-const TMP           = tmpdir();
-const GA_PBF        = join(TMP, 'georgia-latest.osm.pbf');
-const GEOFABRIK_URL = 'https://download.geofabrik.de/north-america/us/georgia-latest.osm.pbf';
+const execAsync = promisify(exec);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT      = join(__dirname, '..');
+const DATA_DIR  = join(ROOT, 'data');
+const TMP       = tmpdir();
 
-// Georgia bounding box for Overpass fallback [south, west, north, east]
-const GA_BBOX = '30.3577,-85.6052,35.0009,-80.8401';
+// ------------------------------------------------------------------
+// Load config
+// ------------------------------------------------------------------
+
+const STATES  = JSON.parse(await readFile(join(ROOT, 'config', 'states.json'),  'utf8'));
+const SOURCES = JSON.parse(await readFile(join(ROOT, 'config', 'sources.json'), 'utf8'));
+
+const ENABLED_STATES = Object.entries(STATES)
+  .filter(([, cfg]) => cfg.enabled && !cfg['_comment'])
+  .map(([code, cfg]) => ({ code, ...cfg }));
 
 // ------------------------------------------------------------------
 // Shared utilities
@@ -59,17 +59,15 @@ function toFeature(lat, lng, props) {
   };
 }
 
-async function saveJSON(filename, data) {
-  await writeFile(join(DATA_DIR, filename), JSON.stringify(data, null, 2), 'utf8');
-  console.log(`  Saved ${data.length} records → data/${filename}`);
+async function saveJSON(stateCode, filename, data) {
+  const dir = join(DATA_DIR, stateCode);
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, filename), JSON.stringify(data, null, 2), 'utf8');
+  console.log(`  Saved ${data.length} records → data/${stateCode}/${filename}`);
 }
 
 /** Compute centroid of any GeoJSON geometry, returns [lng, lat] */
 function centroid(geometry) {
-  const flat = (coords) => {
-    if (!Array.isArray(coords[0])) return [coords];
-    return coords.flatMap(flat);
-  };
   const pts =
     geometry.type === 'Point'           ? [geometry.coordinates] :
     geometry.type === 'MultiPoint'      ? geometry.coordinates :
@@ -83,8 +81,31 @@ function centroid(geometry) {
   return [sum[0] / pts.length, sum[1] / pts.length];
 }
 
-/** Parse a GeoJSON FeatureCollection from osmium export into our feature format */
-function osmiumGeoJSONToFeatures(raw, source) {
+// ------------------------------------------------------------------
+// PRIMARY PATH — Geofabrik + osmium
+// ------------------------------------------------------------------
+
+async function isOsmiumAvailable() {
+  try { await execAsync('osmium version'); return true; }
+  catch { return false; }
+}
+
+async function downloadGeofabrikExtract(slug, pbfPath) {
+  if (existsSync(pbfPath)) {
+    console.log(`  PBF already present at ${pbfPath}, skipping download.`);
+    return;
+  }
+  const url = `${SOURCES.osm.baseUrl}/${slug}-latest.osm.pbf`;
+  console.log(`  Downloading ${url}`);
+  try {
+    await execAsync(`curl -L --progress-bar -o "${pbfPath}" "${url}"`, { timeout: 600_000 });
+  } catch {
+    await execAsync(`wget -q --show-progress -O "${pbfPath}" "${url}"`, { timeout: 600_000 });
+  }
+  console.log('  Download complete.');
+}
+
+function osmiumGeoJSONToFeatures(raw, stateCode) {
   const fc = JSON.parse(raw);
   return (fc.features || []).flatMap(f => {
     const c = centroid(f.geometry);
@@ -94,108 +115,51 @@ function osmiumGeoJSONToFeatures(raw, source) {
       name:    t.name || t['name:en'] || null,
       address: [t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' ') || null,
       city:    t['addr:city']     || null,
-      state:   t['addr:state']    || 'GA',
+      state:   stateCode,
       zip:     t['addr:postcode'] || null,
       phone:   t.phone            || t['contact:phone']   || null,
       website: t.website          || t['contact:website'] || null,
       hours:   t.opening_hours    || null,
-      source,
+      source:  SOURCES.osm.attribution,
     })];
   });
 }
 
-// ------------------------------------------------------------------
-// PRIMARY PATH — Geofabrik + osmium
-// ------------------------------------------------------------------
-
-async function isOsmiumAvailable() {
-  try {
-    await execAsync('osmium version');
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Download the Georgia PBF extract once (reused for all OSM categories) */
-async function downloadGeofabrikExtract() {
-  if (existsSync(GA_PBF)) {
-    console.log(`  Georgia PBF already present at ${GA_PBF}, skipping download.`);
-    return;
-  }
-  console.log(`  Downloading ${GEOFABRIK_URL}`);
-  console.log('  (337 MB — this takes ~1 min on a typical connection)');
-
-  // Use curl / wget depending on what's available
-  try {
-    await execAsync(`curl -L --progress-bar -o "${GA_PBF}" "${GEOFABRIK_URL}"`,
-      { timeout: 300_000 }); // 5 min max
-  } catch {
-    await execAsync(`wget -q --show-progress -O "${GA_PBF}" "${GEOFABRIK_URL}"`,
-      { timeout: 300_000 });
-  }
-  console.log('  Download complete.');
-}
-
-/**
- * Filter the Georgia PBF by a set of tag expressions using osmium,
- * then export to GeoJSON and parse into our feature format.
- *
- * @param {string}   label       human-readable name for logging
- * @param {string[]} expressions osmium tag-filter expressions, e.g. "social_facility=shelter"
- * @param {string}   source      value for the 'source' property
- */
-async function fetchOSMViaOsmium(label, expressions, source) {
+async function fetchOSMViaOsmium(label, expressions, pbfPath, stateCode) {
   console.log(`  Filtering ${label} with osmium…`);
+  const slug        = label.replace(/\s+/g, '-');
+  const filteredPbf = join(TMP, `civly-${slug}.osm.pbf`);
+  const geojsonFile = join(TMP, `civly-${slug}.geojson`);
 
-  const filteredPbf = join(TMP, `civly-${label.replace(/\s+/g, '-')}.osm.pbf`);
-  const geojsonFile = join(TMP, `civly-${label.replace(/\s+/g, '-')}.geojson`);
-
-  // Build the tags-filter command
   const exprArgs = expressions.map(e => `"${e}"`).join(' ');
   await execAsync(
-    `osmium tags-filter "${GA_PBF}" ${exprArgs} -o "${filteredPbf}" --overwrite`,
+    `osmium tags-filter "${pbfPath}" ${exprArgs} -o "${filteredPbf}" --overwrite`,
     { timeout: 120_000 }
   );
-
-  // Export filtered PBF to GeoJSON
   await execAsync(
     `osmium export "${filteredPbf}" -f geojson -o "${geojsonFile}" --overwrite`,
     { timeout: 120_000 }
   );
 
   const raw      = await readFile(geojsonFile, 'utf8');
-  const features = osmiumGeoJSONToFeatures(raw, source);
-
-  // Clean up temp files
+  const features = osmiumGeoJSONToFeatures(raw, stateCode);
   await unlink(filteredPbf).catch(() => {});
   await unlink(geojsonFile).catch(() => {});
-
   return features;
 }
 
 // ------------------------------------------------------------------
-// FALLBACK PATH — Overpass API (for local dev without osmium)
+// FALLBACK PATH — Overpass API
 // ------------------------------------------------------------------
-
-const OVERPASS_ENDPOINTS = [
-  'https://overpass.private.coffee/api/interpreter',
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
-  'https://overpass-api.de/api/interpreter',
-];
 
 async function overpassQuery(query) {
   const body = 'data=' + encodeURIComponent(query);
-
-  for (const endpoint of OVERPASS_ENDPOINTS) {
+  for (const endpoint of SOURCES.osm.overpassEndpoints) {
     try {
       console.log(`  Trying ${endpoint}`);
       const res = await fetch(endpoint, {
         method:  'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept':       'application/json',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
         body,
         signal: AbortSignal.timeout(120_000),
       });
@@ -209,7 +173,16 @@ async function overpassQuery(query) {
   throw new Error('All Overpass endpoints failed.');
 }
 
-function osmElementToFeature(el) {
+function buildOverpassQuery(tags, bbox) {
+  const bboxStr = `${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}`;
+  const lines = tags.flatMap(([k, v]) => [
+    `  node["${k}"="${v}"](${bboxStr});`,
+    `  way["${k}"="${v}"](${bboxStr});`,
+  ]);
+  return `[out:json][timeout:120];\n(\n${lines.join('\n')}\n);\nout center;`;
+}
+
+function osmElementToFeature(el, stateCode) {
   const lat = el.type === 'node' ? el.lat : el.center?.lat;
   const lng = el.type === 'node' ? el.lon : el.center?.lon;
   if (!lat || !lng) return null;
@@ -218,69 +191,21 @@ function osmElementToFeature(el) {
     name:    t.name || t['name:en'] || null,
     address: [t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' ') || null,
     city:    t['addr:city']     || null,
-    state:   t['addr:state']    || 'GA',
+    state:   stateCode,
     zip:     t['addr:postcode'] || null,
     phone:   t.phone            || t['contact:phone']   || null,
     website: t.website          || t['contact:website'] || null,
     hours:   t.opening_hours    || null,
-    source:  'OpenStreetMap',
+    source:  SOURCES.osm.attribution,
   });
 }
 
-async function fetchOSMViaOverpass(label, qlQuery) {
+async function fetchOSMViaOverpass(label, tags, bbox, stateCode) {
   console.log(`  Querying Overpass for ${label}…`);
-  const data     = await overpassQuery(qlQuery);
-  const features = (data.elements || []).map(osmElementToFeature).filter(Boolean);
-  return features;
+  const query    = buildOverpassQuery(tags, bbox);
+  const data     = await overpassQuery(query);
+  return (data.elements || []).map(el => osmElementToFeature(el, stateCode)).filter(Boolean);
 }
-
-// ------------------------------------------------------------------
-// OSM category definitions
-// ------------------------------------------------------------------
-
-const OSM_CATEGORIES = {
-  shelters: {
-    label: 'shelters',
-    osmiumExpressions: [
-      'social_facility=shelter',
-      'social_facility=homeless_shelter',
-      'homeless=shelter',
-    ],
-    overpassQuery: `
-[out:json][timeout:120];
-(
-  node["social_facility"="shelter"](${GA_BBOX});
-  node["social_facility"="homeless_shelter"](${GA_BBOX});
-  node["homeless"="shelter"](${GA_BBOX});
-  way["social_facility"="shelter"](${GA_BBOX});
-  way["social_facility"="homeless_shelter"](${GA_BBOX});
-  relation["social_facility"="shelter"](${GA_BBOX});
-);
-out center;`.trim(),
-  },
-
-  foodBanks: {
-    label: 'food-banks',
-    osmiumExpressions: [
-      'social_facility=food_bank',
-      'social_facility=food_pantry',
-      'social_facility=soup_kitchen',
-      'amenity=food_bank',
-    ],
-    overpassQuery: `
-[out:json][timeout:120];
-(
-  node["social_facility"="food_bank"](${GA_BBOX});
-  node["social_facility"="food_pantry"](${GA_BBOX});
-  node["social_facility"="soup_kitchen"](${GA_BBOX});
-  node["amenity"="food_bank"](${GA_BBOX});
-  way["social_facility"="food_bank"](${GA_BBOX});
-  way["social_facility"="food_pantry"](${GA_BBOX});
-  way["amenity"="food_bank"](${GA_BBOX});
-);
-out center;`.trim(),
-  },
-};
 
 // ------------------------------------------------------------------
 // HRSA — Free health clinics
@@ -334,71 +259,63 @@ async function* streamCSV(url) {
   }
 }
 
-async function fetchClinics() {
-  console.log('Fetching free clinics from HRSA…');
-  const URL = 'https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv';
+async function fetchClinics(stateCode) {
+  const src = SOURCES.clinics;
+  console.log(`  Fetching clinics from ${src.attribution} for ${stateCode}…`);
   const features = [];
-
   try {
-    for await (const row of streamCSV(URL)) {
-      if ((row['Site State Abbreviation'] || '').trim().toUpperCase() !== 'GA') continue;
-      const lat = row['Geocoding Artifact Address Primary Y Coordinate'] || row['Latitude'] || '';
-      const lng = row['Geocoding Artifact Address Primary X Coordinate'] || row['Longitude'] || '';
+    for await (const row of streamCSV(src.url)) {
+      if ((row[src.stateField] || '').trim().toUpperCase() !== stateCode) continue;
+      const lat = row[src.latField] || '';
+      const lng = row[src.lngField] || '';
       if (!lat || !lng || !isFinite(+lat) || !isFinite(+lng)) continue;
       features.push(toFeature(lat, lng, {
-        name:    row['Site Name']             || null,
-        address: row['Site Address']          || null,
-        city:    row['Site City']             || null,
-        state:   'GA',
-        zip:     row['Site Postal Code']      || null,
-        phone:   row['Site Telephone Number'] || null,
-        website: row['Site Web Address']      || null,
-        source:  'HRSA',
+        name:    row[src.nameField]    || null,
+        address: row[src.addressField] || null,
+        city:    row[src.cityField]    || null,
+        state:   stateCode,
+        zip:     row[src.zipField]     || null,
+        phone:   row[src.phoneField]   || null,
+        website: row[src.websiteField] || null,
+        source:  src.attribution,
       }));
     }
   } catch (err) {
-    console.error('  HRSA fetch failed:', err.message);
+    console.error(`  Clinics fetch failed for ${stateCode}:`, err.message);
   }
-
-  console.log(`  Found ${features.length} HRSA health centers in GA`);
+  console.log(`  Found ${features.length} clinics in ${stateCode}`);
   return features;
 }
 
 // ------------------------------------------------------------------
-// USDA SNAP / EBT  — ArcGIS FeatureServer (official USDA FNS source)
-// https://usda-snap-retailers-usda-fns.hub.arcgis.com/
+// USDA SNAP / EBT — ArcGIS FeatureServer
 // ------------------------------------------------------------------
 
-const SNAP_API =
-  'https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/' +
-  'snap_retailer_location_data/FeatureServer/0/query';
-
-async function fetchSNAP() {
-  console.log('Fetching SNAP/EBT stores from USDA FNS ArcGIS…');
+async function fetchSNAP(stateCode) {
+  const src = SOURCES.snap;
+  console.log(`  Fetching SNAP/EBT from ${src.attribution} for ${stateCode}…`);
 
   const features = [];
-  const pageSize = 1000;
+  const pageSize = src.pageSize || 1000;
   let   offset   = 0;
 
   while (true) {
     const params = new URLSearchParams({
-      where:             "State='GA'",
-      outFields:         'Store_Name,Store_Street_Address,City,State,Zip_Code,County,Store_Type',
+      where:             `${src.stateField}='${stateCode}'`,
+      outFields:         src.fields,
       f:                 'geojson',
       resultRecordCount: String(pageSize),
       resultOffset:      String(offset),
     });
 
-    const url = `${SNAP_API}?${params}`;
-    console.log(`  Fetching records ${offset + 1}–${offset + pageSize}…`);
-
+    console.log(`  Records ${offset + 1}–${offset + pageSize}…`);
     let data;
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
+      const res = await fetch(`${src.url}?${params}`, { signal: AbortSignal.timeout(60_000) });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       data = await res.json();
     } catch (err) {
-      console.error(`  SNAP fetch failed at offset ${offset}:`, err.message);
+      console.error(`  SNAP fetch failed at offset ${offset} for ${stateCode}:`, err.message);
       break;
     }
 
@@ -408,24 +325,106 @@ async function fetchSNAP() {
       if (!isFinite(lat) || !isFinite(lng)) continue;
       const p = f.properties || {};
       features.push(toFeature(lat, lng, {
-        name:    p.Store_Name            || null,
-        address: p.Store_Street_Address  || null,
-        city:    p.City                  || null,
-        state:   'GA',
-        zip:     p.Zip_Code              || null,
+        name:    p.Store_Name           || null,
+        address: p.Store_Street_Address || null,
+        city:    p.City                 || null,
+        state:   stateCode,
+        zip:     p.Zip_Code             || null,
         notes:   p.Store_Type ? `${p.Store_Type} · Accepts SNAP / EBT` : 'Accepts SNAP / EBT',
-        source:  'USDA FNS',
+        source:  src.attribution,
       }));
     }
 
-    // Stop if we got fewer records than the page size — no more pages
     if (batch.length < pageSize) break;
     offset += pageSize;
-    await sleep(300); // brief pause between pages
+    await sleep(300);
   }
 
-  console.log(`  Found ${features.length} SNAP retailers in GA`);
+  console.log(`  Found ${features.length} SNAP retailers in ${stateCode}`);
   return features;
+}
+
+// ------------------------------------------------------------------
+// Extra sources (state-specific, defined in states.json)
+// ------------------------------------------------------------------
+
+async function fetchExtraSource(extra, stateCode) {
+  if (extra.type === 'geojson_url') {
+    console.log(`  Fetching extra source: ${extra.url}`);
+    try {
+      const res = await fetch(extra.url, { signal: AbortSignal.timeout(60_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const fc = await res.json();
+      return (fc.features || []).map(f => {
+        const c = centroid(f.geometry);
+        if (!c) return null;
+        const p = f.properties || {};
+        return toFeature(c[1], c[0], { ...p, state: stateCode, source: extra.attribution || extra.url });
+      }).filter(Boolean);
+    } catch (err) {
+      console.error(`  Extra source failed (${extra.url}):`, err.message);
+      return [];
+    }
+  }
+  console.warn(`  Unknown extra source type: ${extra.type}`);
+  return [];
+}
+
+// ------------------------------------------------------------------
+// Per-state fetch orchestrator
+// ------------------------------------------------------------------
+
+async function fetchState(stateCfg, useOsmium, pbfPath) {
+  const { code, name, bbox, geofabrikSlug, sources = [], extraSources = [] } = stateCfg;
+  console.log(`\n${'─'.repeat(50)}`);
+  console.log(`  State: ${name} (${code})`);
+  console.log(`${'─'.repeat(50)}`);
+
+  const results = { shelters: [], foodBanks: [], clinics: [], snap: [] };
+
+  // OSM (shelters + food banks)
+  if (sources.includes('osm')) {
+    const osmCfg = SOURCES.osm.categories;
+    if (useOsmium) {
+      results.shelters  = await fetchOSMViaOsmium(`${code}-shelters`,   osmCfg.shelters.osmiumExpressions,  pbfPath, code);
+      results.foodBanks = await fetchOSMViaOsmium(`${code}-food-banks`, osmCfg.foodBanks.osmiumExpressions, pbfPath, code);
+    } else {
+      results.shelters  = await fetchOSMViaOverpass('shelters',   osmCfg.shelters.overpassTags,  bbox, code);
+      await sleep(3000);
+      results.foodBanks = await fetchOSMViaOverpass('food banks', osmCfg.foodBanks.overpassTags, bbox, code);
+    }
+  }
+
+  if (sources.includes('clinics')) {
+    results.clinics = await fetchClinics(code);
+  }
+
+  if (sources.includes('snap')) {
+    results.snap = await fetchSNAP(code);
+  }
+
+  // Extra sources (state-specific)
+  for (const extra of extraSources) {
+    const extraFeatures = await fetchExtraSource(extra, code);
+    const target = extra.category || 'shelters';
+    if (results[target]) {
+      results[target] = results[target].concat(extraFeatures);
+    }
+  }
+
+  // Write output
+  await saveJSON(code, 'shelters.json',   results.shelters);
+  await saveJSON(code, 'food-banks.json', results.foodBanks);
+  await saveJSON(code, 'clinics.json',    results.clinics);
+  await saveJSON(code, 'snap.json',       results.snap);
+
+  return {
+    code,
+    shelters:  results.shelters.length,
+    foodBanks: results.foodBanks.length,
+    clinics:   results.clinics.length,
+    snap:      results.snap.length,
+  };
 }
 
 // ------------------------------------------------------------------
@@ -433,58 +432,54 @@ async function fetchSNAP() {
 // ------------------------------------------------------------------
 
 async function main() {
-  console.log('=== Georgia Resources — Data Refresh ===\n');
+  console.log('=== US Community Resources — Data Refresh ===');
+  console.log(`  Enabled states: ${ENABLED_STATES.map(s => s.code).join(', ')}\n`);
+
   await mkdir(DATA_DIR, { recursive: true });
 
   const useOsmium = await isOsmiumAvailable();
-
   if (useOsmium) {
-    console.log('osmium-tool detected — using Geofabrik extract (fast, no API limits)\n');
-    await downloadGeofabrikExtract();
+    console.log('osmium-tool detected — using Geofabrik extracts\n');
   } else {
-    console.log('osmium-tool not found — falling back to Overpass API');
-    console.log('Install osmium-tool for faster, more reliable data fetching.\n');
+    console.log('osmium-tool not found — falling back to Overpass API\n');
   }
 
-  // -- OSM categories (shelters + food banks) --
-  let shelters, foodBanks;
+  const summary = [];
 
-  if (useOsmium) {
-    const { osmiumExpressions: se } = OSM_CATEGORIES.shelters;
-    const { osmiumExpressions: fe } = OSM_CATEGORIES.foodBanks;
+  for (const stateCfg of ENABLED_STATES) {
+    let pbfPath = null;
 
-    shelters  = await fetchOSMViaOsmium('shelters',   se, 'OpenStreetMap');
-    foodBanks = await fetchOSMViaOsmium('food-banks', fe, 'OpenStreetMap');
+    if (useOsmium && stateCfg.sources?.includes('osm')) {
+      pbfPath = join(TMP, `civly-${stateCfg.code.toLowerCase()}.osm.pbf`);
+      await downloadGeofabrikExtract(stateCfg.geofabrikSlug, pbfPath);
+    }
 
-    // Clean up the downloaded PBF after we're done with all OSM categories
-    await unlink(GA_PBF).catch(() => {});
-  } else {
-    shelters  = await fetchOSMViaOverpass('shelters',   OSM_CATEGORIES.shelters.overpassQuery);
-    await sleep(3000); // be a polite Overpass citizen
-    foodBanks = await fetchOSMViaOverpass('food banks', OSM_CATEGORIES.foodBanks.overpassQuery);
+    const stats = await fetchState(stateCfg, useOsmium, pbfPath);
+    summary.push(stats);
+
+    // Clean up PBF after processing each state (saves disk space)
+    if (pbfPath) await unlink(pbfPath).catch(() => {});
   }
 
-  // -- Other sources (not OSM) --
-  const clinics = await fetchClinics();
-  const snap    = await fetchSNAP();
+  // Write manifest (tells app.js which states + files exist)
+  const manifest = {
+    states:      ENABLED_STATES.map(s => s.code),
+    stateNames:  Object.fromEntries(ENABLED_STATES.map(s => [s.code, s.name])),
+    lastUpdated: new Date().toISOString(),
+  };
+  await writeFile(join(DATA_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf8');
+  console.log('\n  Wrote data/manifest.json');
 
-  // -- Write output --
-  console.log('\nWriting output files…');
-  await saveJSON('shelters.json',   shelters);
-  await saveJSON('food-banks.json', foodBanks);
-  await saveJSON('clinics.json',    clinics);
-  await saveJSON('snap.json',       snap);
-  await writeFile(
-    join(DATA_DIR, 'last-updated.json'),
-    JSON.stringify({ date: new Date().toISOString() }, null, 2),
-    'utf8'
-  );
-
+  // Print summary table
+  console.log('\n=== Summary ===');
+  console.log('State  Shelters  Food Banks  Clinics  SNAP/EBT');
+  console.log('─────  ────────  ──────────  ───────  ────────');
+  for (const s of summary) {
+    console.log(
+      `${s.code.padEnd(5)}  ${String(s.shelters).padEnd(8)}  ${String(s.foodBanks).padEnd(10)}  ${String(s.clinics).padEnd(7)}  ${s.snap}`
+    );
+  }
   console.log('\nDone!');
-  console.log(`  Shelters:   ${shelters.length}`);
-  console.log(`  Food Banks: ${foodBanks.length}`);
-  console.log(`  Clinics:    ${clinics.length}`);
-  console.log(`  SNAP/EBT:   ${snap.length}`);
 }
 
 main().catch(err => {
