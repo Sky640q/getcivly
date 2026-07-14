@@ -1,72 +1,380 @@
 [
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-84.4097, 33.7686] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.5869552,
+        34.1220622
+      ]
+    },
     "properties": {
-      "name": "Atlanta Community Food Bank",
-      "address": "732 Joseph E Lowery Blvd NW",
-      "city": "Atlanta", "state": "GA", "zip": "30318",
-      "phone": "404-892-9822",
-      "website": "https://www.acfb.org",
-      "source": "sample"
+      "name": "Papa's Pantry",
+      "address": "6551 Commerce Parkway",
+      "city": "Woodstock",
+      "state": "GA",
+      "zip": "30189",
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
     }
   },
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-82.0372, 33.3654] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.2650288,
+        30.9057901
+      ]
+    },
     "properties": {
-      "name": "Golden Harvest Food Bank",
-      "address": "3310 Commerce Dr",
-      "city": "Augusta", "state": "GA", "zip": "30909",
-      "phone": "706-736-1199",
-      "website": "https://www.goldenharvest.org",
-      "source": "sample"
+      "name": "Food Share Box",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
     }
   },
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-83.2780, 30.8328] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.2809743,
+        30.8310831
+      ]
+    },
     "properties": {
-      "name": "Second Harvest of South Georgia",
-      "address": "3783 US-84",
-      "city": "Valdosta", "state": "GA", "zip": "31601",
-      "phone": "229-244-2678",
-      "website": "https://www.feedsouthgeorgia.org",
-      "source": "sample"
+      "name": "Food Ministries",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
     }
   },
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-83.8543, 34.2871] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.9522316,
+        34.4979765
+      ]
+    },
     "properties": {
-      "name": "Northeast Georgia Food Bank",
-      "address": "1045 Athens Rd",
-      "city": "Gainesville", "state": "GA", "zip": "30507",
-      "phone": "770-532-0841",
-      "website": "https://www.negfoodbank.org",
-      "source": "sample"
+      "name": "Voluntary Action Center Food Bank",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": "+1 706-629-7283",
+      "website": "http://www.voluntaryactioncenter.org",
+      "hours": "Mo,We,Fr 10:00-14:00",
+      "source": "OpenStreetMap"
     }
   },
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-83.6324, 32.8385] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.9524552,
+        34.4978906
+      ]
+    },
     "properties": {
-      "name": "Middle Georgia Community Food Bank",
-      "address": "630 Oglethorpe St",
-      "city": "Macon", "state": "GA", "zip": "31201",
-      "phone": "478-742-3930",
-      "source": "sample"
+      "name": "Vouluntary Action Center Community Kitchen",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": "+1 706-629-7283",
+      "website": "http://www.voluntaryactioncenter.org",
+      "hours": "Mo-Th 11:00-12:30,17:00-18:00; Fr 11:00-12:30",
+      "source": "OpenStreetMap"
     }
   },
   {
     "type": "Feature",
-    "geometry": { "type": "Point", "coordinates": [-81.7832, 32.4489] },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.784862,
+        31.1816834
+      ]
+    },
     "properties": {
-      "name": "Bulloch Food Bank",
-      "address": "7 Packinghouse Rd",
-      "city": "Statesboro", "state": "GA", "zip": "30458",
-      "phone": "912-764-8551",
-      "source": "sample"
+      "name": "Colquitt County Food Bank",
+      "address": "120 3rd Street Northeast",
+      "city": "Moultrie",
+      "state": "GA",
+      "zip": "31768",
+      "phone": null,
+      "website": "https://colquittfoodbank.org/",
+      "hours": "Mo-Fi 09:00-11:00; Sa[1] 09:00-11:00",
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.38636692941178,
+        33.9688414
+      ]
+    },
+    "properties": {
+      "name": "Athens Area Emergency Food Bank",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.022978,
+        30.70602414
+      ]
+    },
+    "properties": {
+      "name": "Echols County Nutrition Center",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.641352415,
+        31.824308974999997
+      ]
+    },
+    "properties": {
+      "name": "The Joseph House Food Pantry & Clothing Closet",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.08803796923077,
+        32.0735368
+      ]
+    },
+    "properties": {
+      "name": "Social Apostolate of Savannah",
+      "address": "502 East Liberty Street",
+      "city": "Savannah",
+      "state": "GA",
+      "zip": "31401",
+      "phone": "+1 912-233-1877",
+      "website": "https://socialapostolate.org/",
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.58608022,
+        33.45247026
+      ]
+    },
+    "properties": {
+      "name": "Real Life Center",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.11123154,
+        34.281502180000004
+      ]
+    },
+    "properties": {
+      "name": "The Rainbow Pantry",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.38638967058824,
+        33.968832670588235
+      ]
+    },
+    "properties": {
+      "name": "Athens Area Emergency Food Bank",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.022978,
+        30.70602414
+      ]
+    },
+    "properties": {
+      "name": "Echols County Nutrition Center",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.641357005,
+        31.82430283
+      ]
+    },
+    "properties": {
+      "name": "The Joseph House Food Pantry & Clothing Closet",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.08803809230768,
+        32.07353566923078
+      ]
+    },
+    "properties": {
+      "name": "Social Apostolate of Savannah",
+      "address": "502 East Liberty Street",
+      "city": "Savannah",
+      "state": "GA",
+      "zip": "31401",
+      "phone": "+1 912-233-1877",
+      "website": "https://socialapostolate.org/",
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.58618382,
+        33.45242788
+      ]
+    },
+    "properties": {
+      "name": "Real Life Center",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.11123988,
+        34.28148106
+      ]
+    },
+    "properties": {
+      "name": "The Rainbow Pantry",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "source": "OpenStreetMap"
     }
   }
 ]
