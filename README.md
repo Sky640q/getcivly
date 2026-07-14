@@ -1,8 +1,8 @@
-# Georgia Community Resources Map
+# US Community Resources Map
 
-Interactive map of free services for residents in need across Georgia — shelters, food banks, SNAP/EBT retailers, and federally-qualified health centers.
+Interactive map of free services for residents in need — shelters, food banks, SNAP/EBT retailers, and federally-qualified health centers. Currently covers Georgia, with easy expansion to any US state.
 
-**Live site:** https://YOUR-ORG.github.io/YOUR-REPO/
+Live site: **https://sky640q.github.io/getcivly/**
 
 ---
 
@@ -17,103 +17,145 @@ Interactive map of free services for residents in need across Georgia — shelte
 
 ---
 
+## Adding a new state
+
+Open `config/states.json` and set `"enabled": true` for the state you want:
+
+```json
+"FL": {
+  "enabled": true,
+  ...
+}
+```
+
+Then trigger **Actions → Refresh Resource Data → Run workflow**. That's it — data is fetched automatically from all three universal sources (SNAP, HRSA, OSM) for the new state, written to `data/FL/`, and the map updates.
+
+States already pre-configured (just flip `enabled`): GA, FL, TX, NC, SC, AL, TN.
+
+---
+
+## Configuration files
+
+### `config/states.json`
+Controls which states are active and their geographic settings.
+
+```jsonc
+"GA": {
+  "enabled": true,          // flip to false to disable
+  "name": "Georgia",
+  "center": [32.75, -83.5], // map default center for this state
+  "zoom": 7,
+  "bbox": [...],            // used for Overpass fallback queries
+  "geofabrikSlug": "north-america/us/georgia",
+  "sources": ["snap", "clinics", "osm"], // which universal sources to fetch
+  "extraSources": []        // state-specific APIs (see below)
+}
+```
+
+### `config/sources.json`
+All universal API endpoints and field mappings in one place. If an API URL changes, update it here — no need to touch the fetch script.
+
+```jsonc
+{
+  "snap":    { "url": "...", "stateField": "State", ... },
+  "clinics": { "url": "...", "stateField": "Site State Abbreviation", ... },
+  "osm":     { "baseUrl": "https://download.geofabrik.de", "overpassEndpoints": [...], ... }
+}
+```
+
+### Adding a state-specific source
+
+If a state has its own API (e.g. a state food bank locator), add it to `extraSources`:
+
+```json
+"extraSources": [
+  {
+    "category": "food",
+    "type": "geojson_url",
+    "url": "https://state-api.gov/food-banks.geojson",
+    "attribution": "State Dept of Agriculture"
+  }
+]
+```
+
+Supported `type` values: `geojson_url` (more can be added in `fetch-data.mjs`).
+
+---
+
 ## Local development
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR-ORG/YOUR-REPO.git
-cd YOUR-REPO
+git clone https://github.com/Sky640q/getcivly.git
+cd getcivly
 
 # 2. Serve the site
 python -m http.server 8080
 ```
 
-Open **http://localhost:8080**. The `data/` folder has sample entries so the map works immediately.
+Open **http://localhost:8080**. Each state's `data/{STATE}/` folder has sample entries so the map works immediately.
 
 ---
 
-## Updating OSM data (shelters + food banks)
+## Refreshing data
 
-### Option A — Overpass Turbo (manual, works anywhere)
+### Option A — GitHub Actions (recommended)
 
-1. Open **https://overpass-turbo.eu**
-2. Paste the contents of `exports/queries/shelters.overpassql` into the editor
-3. Click **Run**
-4. Click **Export → Download → GeoJSON**
-5. Save the file as `exports/shelters.geojson`
-6. Repeat steps 2–5 for `exports/queries/food-banks.overpassql`
-7. Run the normalize script:
-   ```bash
-   node scripts/normalize.mjs
-   ```
-8. Reload http://localhost:8080 — the new data appears on the map.
+The workflow in `.github/workflows/refresh-data.yml` runs every Monday at 03:00 UTC.
+Trigger it manually: **Actions tab → Refresh Resource Data → Run workflow**
 
-Repeat monthly or whenever you want fresh data. The `exports/` folder is gitignored so the raw downloads don't bloat the repo.
+### Option B — Run locally (Linux/macOS/WSL)
 
-### Option B — GitHub Actions (automatic, free for public repos)
-
-GitHub Actions is **free with unlimited minutes for public repositories**. The workflow in `.github/workflows/refresh-data.yml` runs every Monday, fetches fresh data from all sources, and commits it back automatically.
-
-1. Push the repo to GitHub as a **public** repository
-2. Actions will run automatically on Monday mornings
-3. You can also trigger it manually: **Actions tab → Refresh Resource Data → Run workflow**
-
----
-
-## Updating clinic + SNAP data
-
-These two sources are fetched from CSV APIs (not OSM), so Overpass Turbo doesn't apply.
-
-Run the full fetch script (requires Linux/macOS or WSL on Windows — osmium must be installed):
 ```bash
+# Requires osmium-tool: sudo apt-get install osmium-tool
 node scripts/fetch-data.mjs
 ```
 
-Or rely on GitHub Actions to keep these current automatically.
+osmium-tool is optional — without it the script falls back to the Overpass API automatically.
 
----
+### Option C — Manual OSM export (works on any OS)
 
-## Deploy to GitHub Pages
-
-1. Push to GitHub (public repo).
-2. **Settings → Pages → Source:** `main` branch, `/ (root)`.
-3. Site goes live at `https://YOUR-ORG.github.io/YOUR-REPO/` within a minute.
+1. Open **https://overpass-turbo.eu**
+2. Paste `exports/queries/shelters.overpassql` → Run → Export GeoJSON → save as `exports/shelters.geojson`
+3. Repeat for `food-banks.overpassql`
+4. Run: `node scripts/normalize.mjs`
 
 ---
 
 ## Project structure
 
 ```
-├── index.html                          # Single-page app
-├── css/style.css                       # Styles (mobile-first, responsive)
-├── js/app.js                           # Leaflet map + data loading + filters
+├── index.html
+├── css/style.css
+├── js/app.js                           # Leaflet map, loads data/manifest.json
+├── config/
+│   ├── states.json                     # Enable/disable states, set bboxes
+│   └── sources.json                    # Universal API URLs and field mappings
 ├── data/
-│   ├── shelters.json                   # Committed, updated by Action or normalize script
-│   ├── food-banks.json
-│   ├── clinics.json
-│   ├── snap.json
-│   └── last-updated.json
+│   ├── manifest.json                   # Generated — lists enabled states + timestamp
+│   ├── GA/
+│   │   ├── shelters.json
+│   │   ├── food-banks.json
+│   │   ├── clinics.json
+│   │   └── snap.json
+│   └── {STATE}/                        # One folder per enabled state
 ├── exports/
-│   ├── queries/
-│   │   ├── shelters.overpassql         # Paste into overpass-turbo.eu
-│   │   ├── food-banks.overpassql
-│   │   ├── clinics.overpassql
-│   │   └── snap.overpassql
-│   └── *.geojson                       # Your downloads go here (gitignored)
+│   ├── queries/                        # Overpass Turbo .overpassql files
+│   └── *.geojson                       # Manual exports (gitignored)
 ├── scripts/
-│   ├── fetch-data.mjs                  # Full automated fetch (needs osmium on Linux)
-│   └── normalize.mjs                   # Converts Overpass Turbo exports → data/*.json
+│   ├── fetch-data.mjs                  # Automated fetcher (reads config/)
+│   └── normalize.mjs                   # Converts manual Overpass exports
 └── .github/workflows/
-    └── refresh-data.yml                # Weekly cron — free for public repos
+    └── refresh-data.yml                # Weekly cron, free for public repos
 ```
 
 ---
 
 ## Data sources
 
-- **OpenStreetMap** via [Overpass Turbo](https://overpass-turbo.eu) or [Geofabrik](https://download.geofabrik.de/north-america/us/georgia.html)
-- **HRSA Health Center Finder** — federally qualified health centers. [data.hrsa.gov](https://data.hrsa.gov)
-- **USDA FNS SNAP Retailer Locator** — authorized SNAP/EBT retailers. [fns.usda.gov](https://www.fns.usda.gov/snap/retailer-locator)
+- **OpenStreetMap** via [Geofabrik](https://download.geofabrik.de) (primary) or [Overpass Turbo](https://overpass-turbo.eu) (fallback)
+- **HRSA Health Center Program** — federally qualified health centers. [data.hrsa.gov](https://data.hrsa.gov)
+- **USDA FNS SNAP Retailer Locator** — authorized SNAP/EBT retailers. [services1.arcgis.com](https://usda-snap-retailers-usda-fns.hub.arcgis.com/)
 
 ---
 
