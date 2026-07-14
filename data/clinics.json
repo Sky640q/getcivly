@@ -1,0 +1,71 @@
+[
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-84.3590, 33.7661] },
+    "properties": {
+      "name": "Mercy Care Atlanta",
+      "address": "445 Boulevard NE",
+      "city": "Atlanta", "state": "GA", "zip": "30312",
+      "phone": "404-525-4304",
+      "website": "https://www.mercycare.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-84.4501, 33.7652] },
+    "properties": {
+      "name": "Good Samaritan Health Center of Atlanta",
+      "address": "1015 Donald Lee Hollowell Pkwy",
+      "city": "Atlanta", "state": "GA", "zip": "30318",
+      "phone": "404-523-6571",
+      "website": "https://www.gshcatlanta.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-84.3310, 33.7852] },
+    "properties": {
+      "name": "Whitefoord Community Program",
+      "address": "1507 Woodhill Dr NE",
+      "city": "Atlanta", "state": "GA", "zip": "30317",
+      "phone": "404-373-6990",
+      "website": "https://www.whitefoord.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-81.0925, 32.0644] },
+    "properties": {
+      "name": "HOPE Health Center",
+      "address": "107 Fahm St",
+      "city": "Savannah", "state": "GA", "zip": "31401",
+      "phone": "912-231-1234",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-84.2106, 31.2317] },
+    "properties": {
+      "name": "Mitchell County Medical Center FQHC",
+      "address": "30 River St",
+      "city": "Camilla", "state": "GA", "zip": "31730",
+      "phone": "229-336-5284",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-83.2190, 31.5739] },
+    "properties": {
+      "name": "Satilla Community Service Board",
+      "address": "115 Perry House Rd",
+      "city": "Fitzgerald", "state": "GA", "zip": "31750",
+      "phone": "229-423-4357",
+      "source": "sample"
+    }
+  }
+]

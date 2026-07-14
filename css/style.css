@@ -1,0 +1,401 @@
+/* ============================================================
+   Base & Reset
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+/* ============================================================
+   Layout — sidebar + map fill the viewport
+   ============================================================ */
+body {
+  display: flex;
+  overflow: hidden;
+}
+
+#sidebar {
+  width: 300px;
+  min-width: 260px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1000;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+#map {
+  flex: 1;
+  height: 100vh;
+}
+
+/* ============================================================
+   Mobile toggle button
+   ============================================================ */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  line-height: 1;
+}
+
+/* ============================================================
+   Sidebar header
+   ============================================================ */
+#sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+  color: #fff;
+}
+
+#sidebar-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Filters
+   ============================================================ */
+#filters {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.filter-item:hover {
+  background: #f8fafc;
+}
+
+.filter-item input[type="checkbox"] {
+  display: none;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: opacity 0.2s;
+}
+
+/* dim dot + label when unchecked */
+.filter-item:has(input:not(:checked)) .dot {
+  opacity: 0.3;
+}
+
+.filter-item:has(input:not(:checked)) .filter-label {
+  opacity: 0.4;
+}
+
+.filter-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Detail panel — shown when a marker is clicked
+   ============================================================ */
+#detail-panel {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.hint {
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 24px;
+}
+
+.detail-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.detail-card .category-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.detail-card h2 {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.detail-card .field {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.detail-card .field-icon {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  margin-top: 1px;
+}
+
+.detail-card a {
+  color: #2563eb;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.detail-card a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+#footer {
+  padding: 12px 20px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+#last-updated {
+  line-height: 1.3;
+}
+
+#gh-link {
+  color: #94a3b8;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#gh-link:hover {
+  color: #475569;
+}
+
+/* ============================================================
+   Loading overlay
+   ============================================================ */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(248,250,252,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 9999;
+  font-size: 14px;
+  color: #475569;
+  transition: opacity 0.3s;
+}
+
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Leaflet popup overrides
+   ============================================================ */
+.leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  min-width: 200px;
+  max-width: 260px;
+}
+
+.popup-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.popup-address {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ============================================================
+   Custom cluster styles
+   ============================================================ */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-clip: padding-box;
+  border-radius: 20px;
+}
+
+.marker-cluster-small {
+  background-color: rgba(99,102,241,0.2);
+}
+.marker-cluster-small div {
+  background-color: rgba(99,102,241,0.7);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(99,102,241,0.3);
+}
+.marker-cluster-medium div {
+  background-color: rgba(99,102,241,0.75);
+}
+
+.marker-cluster-large {
+  background-color: rgba(99,102,241,0.4);
+}
+.marker-cluster-large div {
+  background-color: rgba(99,102,241,0.8);
+}
+
+.marker-cluster div {
+  width: 30px;
+  height: 30px;
+  margin-left: 5px;
+  margin-top: 5px;
+  text-align: center;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 30px;
+}
+
+/* ============================================================
+   Mobile — sidebar becomes a slide-up drawer
+   ============================================================ */
+@media (max-width: 640px) {
+  body {
+    flex-direction: column;
+  }
+
+  #sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    height: 55vh;
+    min-width: unset;
+    border-right: none;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  }
+
+  #sidebar.open {
+    transform: translateY(0);
+  }
+
+  #map {
+    height: 100vh;
+    width: 100%;
+  }
+}

@@ -1,0 +1,439 @@
+[
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.7246315,
+        32.811482
+      ]
+    },
+    "properties": {
+      "name": "Home Port Veterans Transition Home",
+      "address": "5009 Harrison Road",
+      "city": "Macon",
+      "state": "GA",
+      "zip": "31206",
+      "phone": null,
+      "website": "https://www.homeportmaconga.org/",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "relation/13055930"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3717272,
+        33.7590648
+      ]
+    },
+    "properties": {
+      "name": "Our House",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/219331009"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3845982,
+        33.7684022
+      ]
+    },
+    "properties": {
+      "name": "Community Friendship Incorporated",
+      "address": "85 Renaissance Parkway Northeast",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30308",
+      "phone": "+1-404-875-0381",
+      "website": "https://communityfriendship.org",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/269999028"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3926493,
+        33.7649813
+      ]
+    },
+    "properties": {
+      "name": "Atlanta Mission - The Sheperd's Inn",
+      "address": "165 Ivan Allen Junior Boulevard",
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": "+1 404-367-2493",
+      "website": "https://atlantamission.org",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/270358285"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3808045,
+        33.7499558
+      ]
+    },
+    "properties": {
+      "name": "Odyssey III",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/270880929"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.3863106,
+        33.9686291
+      ]
+    },
+    "properties": {
+      "name": "Athens Area Homeless Shelter",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/310894444"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3945414,
+        33.7476293
+      ]
+    },
+    "properties": {
+      "name": "Gateway Center",
+      "address": "275 Pryor Street",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30303",
+      "phone": "+1-404-215-6600",
+      "website": "https://www.gatewayctr.org/",
+      "hours": "24/7",
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/348402902"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -83.9373976,
+        34.7399687
+      ]
+    },
+    "properties": {
+      "name": "Blood Mountain Shelter",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": "Blood Mtn Shelter may be closed in future, check w/ USFS or ATC; no water--gb, 1",
+      "source": "OpenStreetMap",
+      "osm_id": "way/420402396"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.4913762,
+        31.1506573
+      ]
+    },
+    "properties": {
+      "name": "Safe Harbor",
+      "address": "1526 Norwich Street",
+      "city": "Brunswick",
+      "state": "GA",
+      "zip": "31520",
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/662070599"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3922372,
+        33.7648727
+      ]
+    },
+    "properties": {
+      "name": "The Atlanta Mission",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/886340463"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.1075255,
+        32.051167
+      ]
+    },
+    "properties": {
+      "name": "The Salvation Army - Savannah",
+      "address": "3100 Montgomery Street",
+      "city": "Savannah",
+      "state": "GA",
+      "zip": "31405",
+      "phone": "+1-912-651-7420",
+      "website": "https://salvationarmygeorgia.org/savannah/",
+      "hours": "24/7",
+      "notes": "24 hour, 365-day-a-year emergency shelter for men, women and children with transitional housing programs, daily dinner, and other programs",
+      "source": "OpenStreetMap",
+      "osm_id": "way/956672912"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.4030061,
+        33.7459368
+      ]
+    },
+    "properties": {
+      "name": "Atlanta City Baptist Rescue Mission",
+      "address": "316 Peters Street Southwest",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30313",
+      "phone": null,
+      "website": "https://atlantabaptistrescuemission.org",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/1263059302"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.5592645,
+        33.9833877
+      ]
+    },
+    "properties": {
+      "name": "Hope House",
+      "address": "1297 Bells Ferry Road Northwest",
+      "city": "Marietta",
+      "state": "GA",
+      "zip": "30066",
+      "phone": null,
+      "website": "https://www.mustministries.org/marietta-must-hope-house",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "way/1417657019"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3945527,
+        33.7476109
+      ]
+    },
+    "properties": {
+      "name": "Gateway Center",
+      "address": "275 Pryor Street Southwest",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30303",
+      "phone": "+1-404-215-6600",
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/4237695952"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.4909148,
+        31.150574
+      ]
+    },
+    "properties": {
+      "name": null,
+      "address": "1101 Gloucester Street",
+      "city": "Brunswick",
+      "state": "GA",
+      "zip": "31520",
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/6198410024"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -81.4906252,
+        31.1506631
+      ]
+    },
+    "properties": {
+      "name": "Women's Shelter",
+      "address": "1107 Gloucester Street",
+      "city": "Brunswick",
+      "state": "GA",
+      "zip": "31520",
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/6198410025"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.9507355,
+        34.4941611
+      ]
+    },
+    "properties": {
+      "name": "Providence Rescue Mission Men's Shelter",
+      "address": null,
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": null,
+      "website": null,
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/12049385405"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3838526,
+        33.7710386
+      ]
+    },
+    "properties": {
+      "name": "Atlanta Children's Day Shelter",
+      "address": "607 Peachtree Street Northeast",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30308",
+      "phone": "+1-404-892-3713",
+      "website": "https://acsatl.org/",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/12136141359"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -84.3922719,
+        33.7651508
+      ]
+    },
+    "properties": {
+      "name": "Atlanta Mission - Fuqua Hall",
+      "address": "144 Mills Street Northwest",
+      "city": null,
+      "state": "GA",
+      "zip": null,
+      "phone": "+1 404-367-2492",
+      "website": "https://atlantamission.org",
+      "hours": null,
+      "notes": null,
+      "source": "OpenStreetMap",
+      "osm_id": "node/12619410960"
+    }
+  }
+]

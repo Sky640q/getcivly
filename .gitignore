@@ -1,0 +1,7 @@
+# Raw Overpass Turbo downloads — normalized versions go into data/ instead
+exports/*.geojson
+exports/*.json
+
+# OS
+.DS_Store
+Thumbs.db

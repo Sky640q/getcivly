@@ -1,0 +1,72 @@
+[
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-84.4097, 33.7686] },
+    "properties": {
+      "name": "Atlanta Community Food Bank",
+      "address": "732 Joseph E Lowery Blvd NW",
+      "city": "Atlanta", "state": "GA", "zip": "30318",
+      "phone": "404-892-9822",
+      "website": "https://www.acfb.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-82.0372, 33.3654] },
+    "properties": {
+      "name": "Golden Harvest Food Bank",
+      "address": "3310 Commerce Dr",
+      "city": "Augusta", "state": "GA", "zip": "30909",
+      "phone": "706-736-1199",
+      "website": "https://www.goldenharvest.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-83.2780, 30.8328] },
+    "properties": {
+      "name": "Second Harvest of South Georgia",
+      "address": "3783 US-84",
+      "city": "Valdosta", "state": "GA", "zip": "31601",
+      "phone": "229-244-2678",
+      "website": "https://www.feedsouthgeorgia.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-83.8543, 34.2871] },
+    "properties": {
+      "name": "Northeast Georgia Food Bank",
+      "address": "1045 Athens Rd",
+      "city": "Gainesville", "state": "GA", "zip": "30507",
+      "phone": "770-532-0841",
+      "website": "https://www.negfoodbank.org",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-83.6324, 32.8385] },
+    "properties": {
+      "name": "Middle Georgia Community Food Bank",
+      "address": "630 Oglethorpe St",
+      "city": "Macon", "state": "GA", "zip": "31201",
+      "phone": "478-742-3930",
+      "source": "sample"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [-81.7832, 32.4489] },
+    "properties": {
+      "name": "Bulloch Food Bank",
+      "address": "7 Packinghouse Rd",
+      "city": "Statesboro", "state": "GA", "zip": "30458",
+      "phone": "912-764-8551",
+      "source": "sample"
+    }
+  }
+]
