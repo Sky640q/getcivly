@@ -365,41 +365,63 @@ async function fetchClinics() {
 }
 
 // ------------------------------------------------------------------
-// USDA SNAP / EBT
+// USDA SNAP / EBT  — ArcGIS FeatureServer (official USDA FNS source)
+// https://usda-snap-retailers-usda-fns.hub.arcgis.com/
 // ------------------------------------------------------------------
 
-async function fetchSNAP() {
-  console.log('Fetching SNAP/EBT stores from USDA FNS…');
+const SNAP_API =
+  'https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/' +
+  'snap_retailer_location_data/FeatureServer/0/query';
 
-  const URLS = [
-    'https://usda-snap-retailer-locator.fns.usda.gov/api/retailerLocator/downloadSNAPRetailers',
-    'https://www.fns.usda.gov/sites/default/files/snap/stores/Stores.csv',
-  ];
+async function fetchSNAP() {
+  console.log('Fetching SNAP/EBT stores from USDA FNS ArcGIS…');
 
   const features = [];
+  const pageSize = 1000;
+  let   offset   = 0;
 
-  for (const url of URLS) {
+  while (true) {
+    const params = new URLSearchParams({
+      where:             "State='GA'",
+      outFields:         'Store_Name,Store_Street_Address,City,State,Zip_Code,County,Store_Type',
+      f:                 'geojson',
+      resultRecordCount: String(pageSize),
+      resultOffset:      String(offset),
+    });
+
+    const url = `${SNAP_API}?${params}`;
+    console.log(`  Fetching records ${offset + 1}–${offset + pageSize}…`);
+
+    let data;
     try {
-      console.log(`  Trying ${url}`);
-      for await (const row of streamCSV(url)) {
-        if ((row['State'] || row['state'] || '').trim().toUpperCase() !== 'GA') continue;
-        const lat = row['Latitude']  || row['latitude']  || '';
-        const lng = row['Longitude'] || row['longitude'] || '';
-        if (!lat || !lng || !isFinite(+lat) || !isFinite(+lng)) continue;
-        features.push(toFeature(lat, lng, {
-          name:    row['Store Name'] || row['Name'] || null,
-          address: row['Address']    || null,
-          city:    row['City']       || null,
-          state:   'GA',
-          zip:     row['Zip5']       || row['Zip'] || null,
-          notes:   'Accepts SNAP / EBT',
-          source:  'USDA FNS',
-        }));
-      }
-      if (features.length > 0) break; // success, don't try fallback
+      const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
     } catch (err) {
-      console.warn(`  Failed (${url}): ${err.message}`);
+      console.error(`  SNAP fetch failed at offset ${offset}:`, err.message);
+      break;
     }
+
+    const batch = data.features || [];
+    for (const f of batch) {
+      const [lng, lat] = f.geometry?.coordinates ?? [];
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const p = f.properties || {};
+      features.push(toFeature(lat, lng, {
+        name:    p.Store_Name            || null,
+        address: p.Store_Street_Address  || null,
+        city:    p.City                  || null,
+        state:   'GA',
+        zip:     p.Zip_Code              || null,
+        notes:   p.Store_Type ? `${p.Store_Type} · Accepts SNAP / EBT` : 'Accepts SNAP / EBT',
+        source:  'USDA FNS',
+      }));
+    }
+
+    // Stop if we got fewer records than the page size — no more pages
+    if (batch.length < pageSize) break;
+    offset += pageSize;
+    await sleep(300); // brief pause between pages
   }
 
   console.log(`  Found ${features.length} SNAP retailers in GA`);
